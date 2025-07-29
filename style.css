@@ -98,8 +98,11 @@ header {
 }
 
 .tab-content.active {
-
   display: block;
+}
+
+#file-input {
+  display: none;
 }
 
 .upload-area {
@@ -251,7 +254,7 @@ header {
   background: #f8f9fa;
   padding: 1rem;
   border-radius: 8px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.6rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -278,7 +281,7 @@ header {
 
 .remove-file {
   color: var(--error);
-  cursor: pointer;
+  cursor: pointer !important  ;
   font-size: 1.5rem;
 }
 

@@ -29,20 +29,16 @@
 
         <!-- File Upload Tab -->
         <div class="tab-content active file-tab">
-          <div class="upload-area">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <h3>Drop files here or click to upload</h3>
-            <p>Max file size: 100MB</p>
+          <div class="upload-area" id="drop-area">
+            <label for="file-input" class="file-label">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <h3>Drop files here or click to upload</h3>
+              <p>Max file size: 100MB</p>
+            </label>
           </div>
 
-          <div class="file-info">
-            <i class="fas fa-file-alt file-icon"></i>
-            <div class="file-details">
-              <div class="file-name">example-document.pdf</div>
-              <div class="file-size">2.4 MB</div>
-            </div>
-            <i class="fas fa-times remove-file"></i>
-          </div>
+          <input type="file" id="file-input" multiple />
+          <div class="file-info-container"></div>
 
           <div class="options">
             <div class="option-group">
@@ -116,7 +112,7 @@
         </p>
       </footer>
     </div>
-   
-    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js" type="module"></script>
   </body>
 </html>
