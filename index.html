@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickDrop For Me - UI Only</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo">
+          <i class="fas fa-paper-plane"></i>
+          QuickDrop<span>For Me</span>
+        </div>
+        <p class="tagline">Simple, fast file and text sharing</p>
+      </header>
+
+      <div class="card">
+        <div class="tabs">
+          <div class="tab active file-tab-btn">File Upload</div>
+          <div class="tab text-tab-btn">Text Share</div>
+        </div>
+
+        <!-- File Upload Tab -->
+        <div class="tab-content active file-tab">
+          <div class="upload-area">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h3>Drop files here or click to upload</h3>
+            <p>Max file size: 100MB</p>
+          </div>
+
+          <div class="file-info">
+            <i class="fas fa-file-alt file-icon"></i>
+            <div class="file-details">
+              <div class="file-name">example-document.pdf</div>
+              <div class="file-size">2.4 MB</div>
+            </div>
+            <i class="fas fa-times remove-file"></i>
+          </div>
+
+          <div class="options">
+            <div class="option-group">
+              <label for="expiry">Expires after</label>
+              <select id="expiry">
+                <option value="1h">1 hour</option>
+                <option value="1d" selected>1 day</option>
+                <option value="7d">7 days</option>
+                <option value="30d">30 days</option>
+                <option value="never">Never</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="password">Password (optional)</label>
+              <input type="text" id="password" placeholder="Set a password" />
+            </div>
+          </div>
+
+          <button class="btn btn-block">Upload File</button>
+
+          <div class="result">
+            <h3>Your file is ready to share!</h3>
+            <div class="result-url">
+              https://quickdropforme.com/share/abc123
+            </div>
+            <button class="btn btn-secondary copy-btn">Copy Link</button>
+          </div>
+        </div>
+
+        <!-- Text Share Tab (hidden by default) -->
+        <div class="tab-content text-tab">
+          <textarea
+            class="text-area"
+            placeholder="Paste your text here..."
+          ></textarea>
+
+          <div class="options">
+            <div class="option-group">
+              <label for="text-expiry">Expires after</label>
+              <select id="text-expiry">
+                <option value="1h">1 hour</option>
+                <option value="1d" selected>1 day</option>
+                <option value="7d">7 days</option>
+                <option value="30d">30 days</option>
+                <option value="never">Never</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="text-password">Password (optional)</label>
+              <input
+                type="text"
+                id="text-password"
+                placeholder="Set a password"
+              />
+            </div>
+          </div>
+
+          <button class="btn btn-block">Share Text</button>
+
+          <div class="result">
+            <h3>Your text is ready to share!</h3>
+            <div class="result-url">https://quickdropforme.com/text/xyz789</div>
+            <button class="btn btn-secondary copy-btn">Copy Link</button>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <p>
+          QuickDrop For Me &copy; 2023 | Simple, secure file and text sharing
+        </p>
+      </footer>
+    </div>
+   
+    <script src="app.js"></script>
+  </body>
+</html>
