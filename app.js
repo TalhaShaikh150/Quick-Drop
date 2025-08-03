@@ -213,6 +213,32 @@ async function deleteFile() {
   });
 }
 
+const downloadBtn = document.querySelector(".download-files");
+
+async function downloadFiles() {
+  downloadBtn.disabled = true;
+  downloadBtn.innerText = "Downloading...";
+
+  const databaseFile = await fetchImage();
+  const imageUrl =
+    "https://oeuieksflauztarkxvsk.supabase.co/storage/v1/object/public/quickdrop/public/";
+
+  for (const file of databaseFile) {
+    const res = await fetch(`${imageUrl}${file.name}`);
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = file.name; // Use the actual file name
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  downloadBtn.disabled = false;
+  downloadBtn.innerText = "Download Files";
+}
+
+downloadBtn.addEventListener("click", downloadFiles);
+
 async function clearAllFiles() {
   const databaseFile = await fetchImage();
 
@@ -254,6 +280,19 @@ function copyLink() {
     element.innerHTML = pageUrl;
   });
 }
+
+function copySharedText() {
+  const copyBtnText = document.querySelector(".copy-text-btn");
+  copyBtnText.addEventListener("click", () => {
+    navigator.clipboard.writeText(textInput.value);
+
+    copyBtnText.innerHTML = `<i class="fa-solid fa-check"></i> Copied`;
+    setTimeout(() => {
+      copyBtnText.innerHTML = `Copy`;
+    }, 1500);
+  });
+}
+copySharedText();
 
 // ========== Initial Calls ==========
 copyLink();
