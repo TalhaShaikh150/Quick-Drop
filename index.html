@@ -39,9 +39,11 @@
 
           <input type="file" id="file-input" multiple />
           <div class="file-info-container"></div>
+          <h3 class="alert-message none">File <span class="file-error-name"></span> Is Already Exists</h3>
+          <div class="loader"></div>
 
           <div class="options">
-            <div class="option-group">
+            <!-- <div class="option-group">
               <label for="expiry">Expires after</label>
               <select id="expiry">
                 <option value="1h">1 hour</option>
@@ -50,19 +52,19 @@
                 <option value="30d">30 days</option>
                 <option value="never">Never</option>
               </select>
-            </div>
+            </div> -->
             <div class="option-group">
               <label for="password">Password (optional)</label>
               <input type="text" id="password" placeholder="Set a password" />
             </div>
           </div>
 
-          <button class="btn btn-block">Upload File</button>
+          <button class="btn btn-block btn-clear">Clear All Files</button>
 
-          <div class="result">
+          <div class="result hide">
             <h3>Your file is ready to share!</h3>
             <div class="result-url">
-              https://quickdropforme.com/share/abc123
+              https://talhashaikh150.github.io/Quick-Drop/
             </div>
             <button class="btn btn-secondary copy-btn">Copy Link</button>
           </div>
@@ -96,7 +98,7 @@
             </div>
           </div>
 
-          <button class="btn btn-block">Share Text</button>
+          <button class="btn btn-block btn-share">Share Text</button>
 
           <div class="result">
             <h3>Your text is ready to share!</h3>
@@ -108,10 +110,11 @@
 
       <footer>
         <p>
-          QuickDrop For Me &copy; 2023 | Simple, secure file and text sharing
+          QuickDrop For Me &copy; 2025 | Simple, secure file and text sharing
         </p>
       </footer>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js" type="module"></script>
   </body>

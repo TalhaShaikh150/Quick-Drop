@@ -1,4 +1,14 @@
 import { client } from "./backend/backend.js";
+
+//Global Variables
+const filesContainer = document.querySelector(".file-info-container");
+const loader = document.querySelector(".loader");
+const shareTextBtn = document.querySelector(".btn-share");
+
+const alertMessage = document.querySelector(".alert-message");
+const fileName = document.querySelector(".file-error-name");
+const textInput = document.querySelector(".text-area");
+
 function switchTabs() {
   const fileTabBtn = document.querySelector(".file-tab-btn");
   const textTabBtn = document.querySelector(".text-tab-btn");
@@ -29,7 +39,52 @@ function switchTabs() {
   });
 }
 
-switchTabs();
+renderPreviousText();
+
+async function shareText() {
+  let userText;
+  textInput.addEventListener("input", async () => {
+    userText = textInput.value;
+    saveTextToStorage(userText);
+  });
+
+ shareTextBtn.addEventListener("click", async () => {
+  const { data, error } = await client
+    .from('quickdrop')
+    .upsert(
+      { id: 1, quickText: userText },
+      { onConflict: 'id' }             
+    )
+    .select();
+
+  if (data) {
+    console.log(data);
+  }
+
+  if (error) {
+    console.log(error, error.message);
+  }
+});
+
+  
+}
+
+shareText();
+
+function saveTextToStorage(userText) {
+  localStorage.setItem("userText", JSON.stringify(userText));
+}
+
+async function renderPreviousText() {
+  // let previousText = JSON.parse(localStorage.getItem("userText")) ||
+  const { data, error } = await client.from("quickdrop").select();
+  data.forEach((element) => {
+   let previousText  =  element.quickText
+
+   textInput.value = previousText
+   
+  });
+}
 
 function uploadFile() {
   const fileInput = document.getElementById("file-input");
@@ -39,10 +94,16 @@ function uploadFile() {
     uploadData(files);
   });
 }
-const filesContainer = document.querySelector(".file-info-container");
-uploadFile();
+
 async function render() {
+  loader.style.display = "block";
+
   const databaseFile = await fetchImage();
+
+  if (databaseFile) {
+    loader.style.display = "none";
+  }
+
   filesContainer.innerHTML = "";
 
   let html = "";
@@ -60,17 +121,14 @@ async function render() {
       </div>`;
   });
 
-  // Inject all HTML at once
   filesContainer.innerHTML = html;
-
-  // Attach delete listeners after rendering
   deleteFile();
+  clearAllFiles();
 }
 
 async function deleteFile() {
   const databaseFile = await fetchImage();
   const removeBtns = document.querySelectorAll(".remove-file");
-  console.log(removeBtns);
   removeBtns.forEach((btn, index) => {
     btn.addEventListener("click", async () => {
       let removed = databaseFile[index].name;
@@ -88,12 +146,32 @@ async function deleteFile() {
   });
 }
 
+async function clearAllFiles() {
+  const clearAllBtn = document.querySelector(".btn-clear");
+  const databaseFile = await fetchImage();
+  databaseFile.forEach((file) => {
+    clearAllBtn.addEventListener("click", async () => {
+      const { data, error } = await client.storage
+        .from("quickdrop")
+        .remove([`public/${file.name}`]);
+      if (data) {
+        filesContainer.innerHTML = "";
+
+        await render();
+      }
+    });
+  });
+}
+
 async function uploadData(files) {
   const { data, error } = await client.storage
     .from("quickdrop")
     .upload(`public/${files.name}`, files);
   if (error) {
-    console.log(error, error.message);
+    if (error.message == "The resource already exists") {
+      alertMessage.classList.remove("none");
+      fileName.innerHTML = `'${files.name}'`;
+    }
   }
   if (data) {
     console.log("image send");
@@ -121,3 +199,5 @@ async function fetchImage() {
 }
 
 render();
+uploadFile();
+switchTabs();
