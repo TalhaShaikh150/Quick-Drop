@@ -213,10 +213,6 @@ header {
   font-size: 1rem;
 }
 
-.hide {
-  display: none;
-}
-
 .result {
   text-align: center;
   padding: 2rem;
@@ -255,7 +251,7 @@ header {
 }
 
 .file-info {
-  background: #f8f9fa;
+  background: #f3f3f4;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 0.6rem;
@@ -323,6 +319,10 @@ footer {
 .file-error-name {
   color: var(--error);
 }
+.text-animation{
+  transition: 0.3s all ease;
+  transform: scale(1.05);
+}
 
 .loader {
   display: none;
@@ -351,4 +351,131 @@ footer {
 
 
 
+
   
+
+.btn-share {
+  position: relative;
+  overflow: hidden;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
+}
+
+.btn-share .btn-text,
+.btn-share .btn-loading,
+.btn-share .btn-success {
+  transition: all 0.3s ease;
+}
+
+.btn-share .btn-loading,
+.btn-share .btn-success {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Loading state */
+.btn-share.loading .btn-text {
+  opacity: 0;
+}
+
+.btn-share.loading .btn-loading {
+  opacity: 1;
+}
+
+/* Success state */
+.btn-share.success .btn-text {
+  opacity: 0;
+}
+
+.btn-share.success .btn-success {
+  opacity: 1;
+}
+
+/* Click animation */
+.btn-share:active {
+  transform: scale(0.98);
+}
+
+/* Optional: Add a pulse animation for extra interactivity */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 206, 201, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 206, 201, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 206, 201, 0); }
+}
+
+.btn-share.pulse {
+  animation: pulse 1s;
+}
+
+
+/* Clear Button Styles */
+.btn-clear {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--primary);
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.btn-clear:hover {
+  background-color:var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.btn-clear .btn-text,
+.btn-clear .btn-loading,
+.btn-clear .btn-success {
+  transition: all 0.3s ease;
+}
+
+.btn-clear .btn-loading,
+.btn-clear .btn-success {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Loading state */
+.btn-clear.loading .btn-text {
+  opacity: 0;
+}
+
+.btn-clear.loading .btn-loading {
+  opacity: 1;
+}
+
+/* Success state */
+.btn-clear.success .btn-text {
+  opacity: 0;
+}
+
+.btn-clear.success .btn-success {
+  opacity: 1;
+}
+
+/* Click animation */
+.btn-clear:active {
+  transform: scale(0.98);
+}
+
+/* Clear button specific pulse animation */
+@keyframes clearPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+}
+
+.btn-clear.pulse {
+  animation: clearPulse 1s;
+}

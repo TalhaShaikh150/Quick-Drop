@@ -1,20 +1,24 @@
+// ========== Imports ==========
 import { client } from "./backend/backend.js";
 
-//Global Variables
+// ========== Global Variables ==========
 const filesContainer = document.querySelector(".file-info-container");
 const loader = document.querySelector(".loader");
 const shareTextBtn = document.querySelector(".btn-share");
-
+const clearAllBtn = document.querySelector(".btn-clear");
+const fileResult = document.querySelector(".result-file");
+const textResult = document.querySelector(".result-text");
 const alertMessage = document.querySelector(".alert-message");
 const fileName = document.querySelector(".file-error-name");
 const textInput = document.querySelector(".text-area");
 
+// ========== UI Interaction ==========
 function switchTabs() {
   const fileTabBtn = document.querySelector(".file-tab-btn");
   const textTabBtn = document.querySelector(".text-tab-btn");
-
   const textTab = document.querySelector(".text-tab");
   const fileTab = document.querySelector(".file-tab");
+  const allTabs = document.querySelectorAll(".tab");
 
   textTabBtn.addEventListener("click", () => {
     textTab.classList.add("active");
@@ -23,88 +27,129 @@ function switchTabs() {
 
   fileTabBtn.addEventListener("click", () => {
     fileTab.classList.add("active");
-
     textTab.classList.remove("active");
   });
 
-  const allTabs = document.querySelectorAll(".tab");
-
   allTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
-      allTabs.forEach((t) => {
-        t.classList.remove("active");
-        tab.classList.add("active");
-      });
+      allTabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
     });
   });
 }
 
-renderPreviousText();
-
+// ========== Share Text Functionality ==========
 async function shareText() {
   let userText;
+
   textInput.addEventListener("input", async () => {
     userText = textInput.value;
+    if (!userText) {
+      textResult.classList.add("none");
+    }
     saveTextToStorage(userText);
+    shareTextBtn.disabled = false;
+    shareTextBtn.classList.remove("success", "pulse");
   });
 
- shareTextBtn.addEventListener("click", async () => {
-  const { data, error } = await client
-    .from('quickdrop')
-    .upsert(
-      { id: 1, quickText: userText },
-      { onConflict: 'id' }             
-    )
-    .select();
+  shareTextBtn.addEventListener("click", async () => {
+    shareTextBtn.classList.add("loading");
+    shareTextBtn.disabled = true;
 
-  if (data) {
-    console.log(data);
-  }
+    const { data, error } = await client
+      .from("quickdrop")
+      .upsert({ id: 1, quickText: userText }, { onConflict: "id" })
+      .select();
 
-  if (error) {
-    console.log(error, error.message);
-  }
-});
+    if (data) {
+      textResult.classList.remove("none");
+      shareTextBtn.classList.remove("loading");
+      shareTextBtn.classList.add("success", "pulse");
+    }
 
-  
+    if (error) {
+      console.log(error, error.message);
+    }
+  });
 }
-
-shareText();
 
 function saveTextToStorage(userText) {
   localStorage.setItem("userText", JSON.stringify(userText));
 }
 
 async function renderPreviousText() {
-  // let previousText = JSON.parse(localStorage.getItem("userText")) ||
   const { data, error } = await client.from("quickdrop").select();
   data.forEach((element) => {
-   let previousText  =  element.quickText
-
-   textInput.value = previousText
-   
+    let previousText = element.quickText;
+    textInput.value = previousText;
   });
 }
 
+// ========== Upload Functionality ==========
 function uploadFile() {
   const fileInput = document.getElementById("file-input");
 
   fileInput.addEventListener("change", async (event) => {
+    clearAllBtn.classList.remove("success", "pulse");
+    clearAllBtn.disabled = false;
+
     const files = event.target.files[0];
     uploadData(files);
   });
 }
 
+async function uploadData(files) {
+  if (!files || !files.name) {
+    console.error("No file selected or invalid file.");
+    return;
+  }
+
+  const { data, error } = await client.storage
+    .from("quickdrop")
+    .upload(`public/${files.name}`, files);
+
+  if (error) {
+    console.log("Upload error:", error);
+
+    if (error.message === "The resource already exists") {
+      alertMessage.classList.remove("none");
+      fileName.innerHTML = `'${files.name}'`;
+      setTimeout(() => {
+        alertMessage.classList.add("none");
+      }, 3000);
+      fetchImage();
+      render();
+    }
+    return;
+  }
+
+  if (data) {
+    clearAllBtn.classList.remove("none");
+    fileResult.classList.remove("none");
+
+    filesContainer.innerHTML = "";
+    fetchImage();
+    render();
+  }
+}
+
+// ========== Render and File Management ==========
 async function render() {
+  filesContainer.innerHTML = "";
   loader.style.display = "block";
+  clearAllBtn.classList.add("none");
+  fileResult.classList.add("none");
 
   const databaseFile = await fetchImage();
 
-  if (databaseFile) {
-    loader.style.display = "none";
+  loader.style.display = "none";
+
+  if (!databaseFile || databaseFile.length === 0) {
+    return;
   }
 
-  filesContainer.innerHTML = "";
+  clearAllBtn.classList.remove("none");
+  fileResult.classList.remove("none");
 
   let html = "";
   databaseFile.forEach((file) => {
@@ -114,10 +159,10 @@ async function render() {
         <div class="file-details">
           <div class="file-name">${file.name}</div>
           <div class="file-size">
-  ${(file.metadata.size / (1024 * 1024)).toFixed(2)} MB
-</div>
+            ${(file.metadata.size / (1024 * 1024)).toFixed(2)} MB
+          </div>
         </div>
-        <i class="fas fa-times remove-file"}"></i>
+        <i class="fas fa-times remove-file"></i>
       </div>`;
   });
 
@@ -126,60 +171,6 @@ async function render() {
   clearAllFiles();
 }
 
-async function deleteFile() {
-  const databaseFile = await fetchImage();
-  const removeBtns = document.querySelectorAll(".remove-file");
-  removeBtns.forEach((btn, index) => {
-    btn.addEventListener("click", async () => {
-      let removed = databaseFile[index].name;
-
-      const { data, error } = await client.storage
-        .from("quickdrop")
-        .remove([`public/${removed}`]);
-
-      if (data) {
-        filesContainer.innerHTML = "";
-
-        await render();
-      }
-    });
-  });
-}
-
-async function clearAllFiles() {
-  const clearAllBtn = document.querySelector(".btn-clear");
-  const databaseFile = await fetchImage();
-  databaseFile.forEach((file) => {
-    clearAllBtn.addEventListener("click", async () => {
-      const { data, error } = await client.storage
-        .from("quickdrop")
-        .remove([`public/${file.name}`]);
-      if (data) {
-        filesContainer.innerHTML = "";
-
-        await render();
-      }
-    });
-  });
-}
-
-async function uploadData(files) {
-  const { data, error } = await client.storage
-    .from("quickdrop")
-    .upload(`public/${files.name}`, files);
-  if (error) {
-    if (error.message == "The resource already exists") {
-      alertMessage.classList.remove("none");
-      fileName.innerHTML = `'${files.name}'`;
-    }
-  }
-  if (data) {
-    console.log("image send");
-    filesContainer.innerHTML = "";
-    fetchImage();
-    render();
-  }
-}
 async function fetchImage() {
   const { data, error } = await client.storage.from("quickdrop").list("public");
 
@@ -198,6 +189,77 @@ async function fetchImage() {
   return [];
 }
 
-render();
+async function deleteFile() {
+  if (filesContainer.innerHTML === "") {
+    clearAllBtn.classList.add("none");
+  }
+
+  const databaseFile = await fetchImage();
+  const removeBtns = document.querySelectorAll(".remove-file");
+
+  removeBtns.forEach((btn, index) => {
+    btn.addEventListener("click", async () => {
+      let removed = databaseFile[index].name;
+
+      const { data, error } = await client.storage
+        .from("quickdrop")
+        .remove([`public/${removed}`]);
+
+      if (data) {
+        filesContainer.innerHTML = "";
+        await render();
+      }
+    });
+  });
+}
+
+async function clearAllFiles() {
+  const databaseFile = await fetchImage();
+
+  databaseFile.forEach((file) => {
+    clearAllBtn.addEventListener("click", async () => {
+      clearAllBtn.classList.add("loading");
+      clearAllBtn.disabled = true;
+
+      const { data, error } = await client.storage
+        .from("quickdrop")
+        .remove([`public/${file.name}`]);
+
+      if (data) {
+        clearAllBtn.classList.remove("loading");
+        clearAllBtn.classList.add("success");
+        filesContainer.innerHTML = "";
+
+        await render();
+      }
+    });
+  });
+}
+
+function copyLink() {
+  const resultUrl = document.querySelectorAll(".result-url");
+  let pageUrl = window.location.href;
+  const copyBtn = document.querySelectorAll(".copy-btn");
+  copyBtn.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      navigator.clipboard.writeText(pageUrl);
+
+      btn.innerHTML = `<i class="fa-solid fa-check"></i> Copied`;
+      setTimeout(() => {
+        btn.innerHTML = `Copy Link`;
+      }, 1500);
+    });
+  });
+  resultUrl.forEach((element) => {
+    element.innerHTML = pageUrl;
+  });
+}
+
+// ========== Initial Calls ==========
+copyLink();
 uploadFile();
+render();
 switchTabs();
+renderPreviousText();
+
+shareText();
